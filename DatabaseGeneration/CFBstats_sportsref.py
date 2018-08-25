@@ -359,14 +359,15 @@ try:
 #		getScoresForDate( 9,  1, 2015) # should be no games this day
 #		getScoresForDate( 9,  3, 2015) # should have games, but already in table
 
+# Must switch user to root in order to delete from DB
+#		for n in range(16, 32):
+#			cursor.execute("DELETE from Games WHERE date='%s-%s-%s'", [2017, 12, n])
+#			getScoresForDate(12, n, 2017)
+#		for n in range(1, 9):
+#			cursor.execute("DELETE from Games WHERE date='%s-%s-%s'", [2018, 1, n])
+#			getScoresForDate(1, n, 2018)
 
-		for n in range(16, 32):
-			getScoresForDate(12, n, 2017)
-		for n in range(1, 9):
-			getScoresForDate(1, n, 2018)
-
-except:
-	print "Something failed in parsing. Quitting..."
+except MySQLdb.Error, e:
+	print str(e)
 
 db.commit()
-
