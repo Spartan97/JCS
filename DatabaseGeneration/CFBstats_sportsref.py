@@ -33,6 +33,9 @@ for line in file:
 		for n in names.split(","):
 			teamAliases[n.strip("' ").strip('"')] = int(team[0][0])
 
+# Log file for games that aren't handled properly
+logfile = open("/var/www/html/JCSrankings/DatabaseGeneration/missing_games.txt", "w+")
+
 class Team:
         id = -1
 
@@ -201,6 +204,7 @@ def parseBoxScore(link):
 		homeTeam.pens = stats[6][2].text_content().split("-")[0]
 		homeTeam.penYds = stats[6][2].text_content().split("-")[1]
 	except:
+		logfile.write(link + "\n")
 		print "Stats for " + awayTeam.name + " " + homeTeam.name + " not available." 
 
 	return awayTeam, homeTeam, isNeutral
@@ -263,8 +267,7 @@ def getScoresForDate(month, day, year, full_week = True, legacy = False):
 					tempLegacy = True # legacy if we can't find the boxscore
 				insertGameRow(date, awayTeam, homeTeam, tempLegacy)
 		except Exception as e:
-			print "Failed to get boxscore"
-			print e, e.reason
+			print "Failed to get boxscore:", e
 
 def handleYear(year):
 	# start in february to ignore previous season's bowls
@@ -351,13 +354,14 @@ try:
 	if len(sys.argv) == 2 and sys.argv[1] == "daily":
 		yesterday = datetime.datetime.now() - datetime.timedelta(days=1)
 		getScoresForDate(yesterday.month, yesterday.day, yesterday.year)	
-		getLines(yesterday.year, yesterday.month, yesterday.day)
+#		getLines(yesterday.year, yesterday.month, yesterday.day)
 	else:
 		print "Invalid arguments. Executing default code."
 
 #		getScoresForDate( 8, 28, 2015) # should be no games this week
 #		getScoresForDate( 9,  1, 2015) # should be no games this day
 #		getScoresForDate( 9,  3, 2015) # should have games, but already in table
+		getScoresForDate( 8,  25, 2018) # should have games, but already in table
 
 # Must switch user to root in order to delete from DB
 #		for n in range(16, 32):
@@ -371,3 +375,4 @@ except MySQLdb.Error, e:
 	print str(e)
 
 db.commit()
+logfile.close()
