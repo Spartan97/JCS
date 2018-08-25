@@ -79,11 +79,6 @@ def printHtml(root, depth):
         for child in root:
                 printHtml(child, depth+1)
 
-def fillPenaltyData(date, awayTeam, homeTeam):
-	cursor.execute("UPDATE Games SET awayPens=" + str(awayTeam.pens) + ", awayPenYds=" + str(awayTeam.penYds) + ", awayFirstDowns=" + str(awayTeam.firstDowns) + \
-		       ", homePens=" + str(homeTeam.pens) + ", homePenYds=" + str(homeTeam.penYds) + ", homeFirstDowns=" + str(homeTeam.firstDowns) + \
-		       " WHERE date='" + date + "' and awayTeamID=" + str(awayTeam.id) + " and homeTeamID=" + str(homeTeam.id))
-
 def insertGameRow(date, awayTeam, homeTeam, legacy = False):
         cursor.execute("SELECT * from Games where date='" + date + "' and awayTeamID=" + str(awayTeam.id) + " and homeTeamID=" + str(homeTeam.id))
         games = cursor.fetchall()
@@ -287,65 +282,35 @@ def handleYear(year):
 		getScoresForDate(1, date, year+1)
 		db.commit()
 
-#def getLines(year, month, day):
-#	date = str(year) + str(month).zfill(2) + str(day).zfill(2)
-#	link = "http://www.sportsbookreview.com/betting-odds/college-football/?date=" + date
-#	print "Getting lines from " + link
-#	browser.get(link)
-#	time.sleep(3) # delay to let the javascript load
-#	root = html.document_fromstring(browser.page_source)
-#
-#	try:
-#		games = root.cssselect(".eventLines")
-#		if len(games) == 0:
-#			print "No lines for date " + date
-#			return
-#		games = games[0].cssselect(".event-holder")
-#	except Exception as e:
-#		print "Could not find lines for date: " + date
-#		print e, e.reason
-#
-#	try:
-#		for game in games:
-#			away = game.cssselect(".team-name a")[0].text_content()
-#			home = game.cssselect(".team-name a")[1].text_content()
-#
-#			awayId = getTeamIdFromName(away)
-#			homeId = getTeamIdFromName(home)
-#
-##			print away, awayId
-##			print home, homeId
-#
-#			if awayId == -1 or homeId == -1:
-#				continue # skip if we're missing one of the teams
-#
-#			line = 0.0
-#			count = 0
-#			books = game.cssselect(".eventLine-book")
-#			# find the spread for each book
-#			for book in books:
-#				value = book.cssselect(".eventLine-book-value")[1].text_content().split(unichr(160))[0].replace(unichr(189), ".5")
-#				if value != "":
-#					# if its a pickem line, the value is 0, but count still goes up
-#					if not "PK" in value:
-#						line += float(value)
-#					count += 1
-#			# aggregate the lines
-#			if count != 0:
-#				line /= count
-#			line = round(line * 2) / 2 # round to nearest .5
-##			print line
-##			print
-#
-#			date = str(year) + "-" + str(month) + "-" + str(day)
-#			result = cursor.execute("UPDATE Games SET line=" + str(line) + " where date='" + date + "' and awayTeamID=" + str(awayId) + " and homeTeamID=" + str(homeId))
-#			if result == 0:
-#				cursor.execute("UPDATE Games SET line=" + str(-1*line) + " where date='" + date + "' and awayTeamID=" + str(homeId) + " and homeTeamID=" + str(awayId))
-#			# sometimes with neutral site the home/away stuff gets janky, so we need to check hte opposite scenario
-#			db.commit()
-#	except Exception as e:
-#		print "Error parsing game lines."
-#		print e, e.reason
+def getLines(month, day, year):
+	date = str(year) + str(month).zfill(2) + str(day).zfill(2)
+	link = "http://www.scoresandodds.com/index.html?sort=rot"
+#	link = "http://www.scoresandodds.com/yesterday.html?sort=rot"
+
+	response = urllib2.urlopen(link)
+	page = response.read()
+	root = html.document_fromstring(page)
+	response.close()
+
+	lines = root.findall(".//div[@id='fbc']...")[0]
+	teams = lines.cssselect("tr.team")
+	for n in range(0, len(teams), 2):
+		away = teams[n]
+		home = teams[n+1]
+
+		awayteam = " ".join(away.cssselect("td.name")[0].text_content().split(" ")[1:]) 
+		awayline = away.cssselect("td.currentline")[0].text_content().split(" ")[0]
+		hometeam = " ".join(home.cssselect("td.name")[0].text_content().split(" ")[1:])
+		homeline = home.cssselect("td.currentline")[0].text_content().split(" ")[0]
+		
+		if "-" in awayline:
+			homeline = awayline[1:]
+		else:
+			awayline = homeline[1:]
+
+		print awayteam, awayline
+		print hometeam, homeline
+		print ""
 
 # MAIN METHOD
 try:
@@ -354,14 +319,16 @@ try:
 	if len(sys.argv) == 2 and sys.argv[1] == "daily":
 		yesterday = datetime.datetime.now() - datetime.timedelta(days=1)
 		getScoresForDate(yesterday.month, yesterday.day, yesterday.year)	
-#		getLines(yesterday.year, yesterday.month, yesterday.day)
+#		getLines(yesterday.month, yesterday.day, yesterday.year)
 	else:
 		print "Invalid arguments. Executing default code."
+
+		getLines(8, 25, 2018) # test this function
+
 
 #		getScoresForDate( 8, 28, 2015) # should be no games this week
 #		getScoresForDate( 9,  1, 2015) # should be no games this day
 #		getScoresForDate( 9,  3, 2015) # should have games, but already in table
-		getScoresForDate( 8,  25, 2018) # should have games, but already in table
 
 # Must switch user to root in order to delete from DB
 #		for n in range(16, 32):
