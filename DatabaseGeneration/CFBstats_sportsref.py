@@ -12,10 +12,6 @@ import datetime
 import sys
 import time
 
-# imports for browser (javascript loading)
-#from selenium import webdriver
-#from pyvirtualdisplay import Display
-
 # connects to my JCS DB with my super secure username and password
 db = MySQLdb.connect(host="localhost", user="jcsuser", passwd="jcspassword", db="JCS")
 cursor = db.cursor()
@@ -36,13 +32,6 @@ for line in file:
 	else:
 		for n in names.split(","):
 			teamAliases[n.strip("' ").strip('"')] = int(team[0][0])
-
-# starts browser used for getting stats. Browser is needed because tables are loaded by javascript, so we can't just get the HTML
-#print "starting browser"
-#display = Display(visible=0, size=(800,600))
-#display.start()
-#browser = webdriver.Firefox(log_path="./geckodriver.log")
-#browser.set_page_load_timeout(60)
 
 class Team:
         id = -1
@@ -133,10 +122,6 @@ def getTeamIdFromName(name):
 		return -1
 
 def parseBoxScore(link):
-#	browser.get(link)
-#	time.sleep(5) # delay to let the javascript load
-#	boxscore = html.document_fromstring(browser.page_source)
-
 	response = urllib2.urlopen(link)
 	page = response.read()
 	boxscore = html.document_fromstring(page)
@@ -235,11 +220,6 @@ def getScoresForDate(month, day, year, full_week = True, legacy = False):
 		return
 
 	main_scores = root.cssselect("div.game_summaries")[0]
-#	try:
-#		other_scores = root.cssselect(".game_summaries")[1].cssselect("div.game_summary")
-#	except:
-#		print "No other scores for the week of " + str(year) + "-" + str(month) + "-" + str(day)
-#		other_scores = []
 
 	# skip games that weren't actually played on this day
 	if "Other Games" in main_scores.cssselect("h2")[0].text_content():
@@ -275,9 +255,6 @@ def getScoresForDate(month, day, year, full_week = True, legacy = False):
 
 			awayTeam.score = score[firstTeam][1].text_content()
 			homeTeam.score = score[firstTeam+1][1].text_content()
-#			print date
-#			awayTeam.printSelf()
-#			homeTeam.printSelf()
 			tempLegacy = legacy
 			if awayTeam.score == '' or homeTeam.score == "":
 				print "No score availible for " + awayTeam.name + " at " + homeTeam.name + ". Was the game not played?"
@@ -290,42 +267,6 @@ def getScoresForDate(month, day, year, full_week = True, legacy = False):
 		except Exception as e:
 			print "Failed to get boxscore"
 			print e, e.reason
-
-########### Disabling this feature to simplify parsing. Now we only look for the actaul day's games
-
-#	if not full_week:
-#		return
-
-#	for score in other_scores:
-#		score = score.cssselect("tr")
-#		date = score[0].text_content().split(" ")[1].split("/")
-#		newday = int(date[-1])
-#		newmonth = int(date[-2])
-#		newyear = year
-#		if newmonth == 12 and month == 1:
-#			newyear = year-1
-#		elif newmonth == 1 and month == 12:
-#			newyear = year+1
-#		date = str(newyear) + "-" + str(newmonth) + "-" + str(newday)
-
-#		try:
-#			if not legacy:
-#				link = "http://www.sports-reference.com" + score[1][2][0].get("href")
-#				print "\nParsing " + link
-#				awayTeam, homeTeam, isNeutral = parseBoxScore(link)
-#			else:
-#				awayTeam.name = score[1][0].cssselect("a")[0].text_content()
-#				awayTeam.name = score[2][0].cssselect("a")[0].text_content()
-#				print "Skipping legacy boxscore on " + date + " for " + awayTeam.name + " vs " + homeTeam.name
-#			awayTeam.score = score[1][1].text_content()
-#			homeTeam.score = score[2][1].text_content()
-##			print date
-##			awayTeam.printSelf()
-##			homeTeam.printSelf()
-#			insertGameRow(date, awayTeam, homeTeam, legacy)
-#		except Exception as e:
-#			print "Failed to get boxscore"
-#			print e
 
 def handleYear(year):
 	# start in february to ignore previous season's bowls
@@ -456,6 +397,7 @@ try:
 		getScoresForDate( 11, 18, 2017)
 		getScoresForDate( 11, 25, 2017)
 
+# Dates that are missing some stats
 #		getLines(2012, 9, 15)
 #		getLines(2013, 10, 19)
 #		getLines(2013, 10, 26)
