@@ -261,8 +261,6 @@ def getScoresForDate(month, day, year, full_week = True, legacy = False):
 			else:
 				if awayTeam.rushAtt == -1 and homeTeam.rushAtt == -1:
 					tempLegacy = True # legacy if we can't find the boxscore
-#				if not tempLegacy:
-#					fillPenaltyData(date, awayTeam, homeTeam)
 				insertGameRow(date, awayTeam, homeTeam, tempLegacy)
 		except Exception as e:
 			print "Failed to get boxscore"
@@ -357,70 +355,18 @@ try:
 	else:
 		print "Invalid arguments. Executing default code."
 
-# VEGAS LINES BACKFILL
-#		for n in range(1, 32):
-#			getLines(2003, 8, n)
-#			getLines(2003, 9, n)
-#			getLines(2003, 10, n)
-#			getLines(2003, 11, n)
-#			getLines(2003, 12, n)
-#			getLines(2004, 1, n)
-
-# PENALTY DATA BACKFILL
-#		links = ["http://www.sports-reference.com/cfb/boxscores/2000-08-27-penn-state.html"] # will need to load from file
-#		for link in links:
-#			firstNum = link.index('2')
-#			date = link[firstNum:firstNum+10]
-#			awayTeam, homeTeam, isNeutral = parseBoxScore(link)
-#			print awayTeam.id, awayTeam.firstDowns, awayTeam.pens, awayTeam.penYds
-#			print homeTeam.id, homeTeam.firstDowns, homeTeam.pens, homeTeam.penYds
-#			fillPenaltyData(date, awayTeam, homeTeam)	
-
 #		getScoresForDate( 8, 28, 2015) # should be no games this week
 #		getScoresForDate( 9,  1, 2015) # should be no games this day
 #		getScoresForDate( 9,  3, 2015) # should have games, but already in table
 
-		getScoresForDate( 9, 15, 2012)
-		getScoresForDate(10, 19, 2013)
-		getScoresForDate(10, 26, 2013)
-		getScoresForDate(11, 9, 2013)
-		getScoresForDate(11, 16, 2013)
-		getScoresForDate( 8, 30, 2014)
-		getScoresForDate( 9, 6, 2014)
-		getScoresForDate( 9, 25, 2014)
-		getScoresForDate( 9, 10, 2016)
-		getScoresForDate(10, 8, 2016)
-		getScoresForDate(10, 29, 2016)
-		getScoresForDate( 9, 2, 2017)
-		getScoresForDate( 9, 9, 2017)
-		getScoresForDate(11, 3, 2017)
-		getScoresForDate( 11, 18, 2017)
-		getScoresForDate( 11, 25, 2017)
 
-# Dates that are missing some stats
-#		getLines(2012, 9, 15)
-#		getLines(2013, 10, 19)
-#		getLines(2013, 10, 26)
-#		getLines(2013, 11, 9)
-#		getLines(2013, 11, 16)
-#		getLines(2014, 8, 30)
-#		getLines(2014, 9, 6)
-#		getLines(2014, 9, 25)
-#		getLines(2016, 9, 10)
-#		getLines(2016, 10, 8)
-#		getLines(2016, 10, 29)
-#		getLines(2017, 9, 2)
-#		getLines(2017, 9, 9)
-#		getLines(2017, 11, 3)
-#		getLines(2017, 11, 18)
-#		getLines(2017, 11, 25)
+		for n in range(16, 32):
+			getScoresForDate(12, n, 2017)
+		for n in range(1, 9):
+			getScoresForDate(1, n, 2018)
 
 except:
 	print "Something failed in parsing. Quitting..."
-
-#browser.quit()
-#display.stop()
-#print "closing browser"
 
 db.commit()
 
