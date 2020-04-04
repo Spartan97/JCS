@@ -5,7 +5,7 @@ Alabama
 Alabama A+M,Alabama A&M
 Alabama State
 Albany
-Alcorn State
+Alcorn State,Alcorn St
 Angelo State
 Appalachian State,Appalachian St
 Arizona
@@ -26,7 +26,7 @@ Boston University
 Bowling Green,Bowling Green State
 Brown
 Bryant,Bryant University
-Buffalo
+Buffalo,Buffalo U
 Bucknell
 Butler
 BYU,Brigham Young
@@ -39,7 +39,7 @@ Central Arkansas,Cent Arkansas
 Central Conn State,Cent Conn St,Central Connecticut State
 Central Michigan,Cent Michigan
 Central Missouri State
-Charleston Southern,Charl Southern
+Charleston Southern,Charl Southern,Charleston Sou
 Charlotte
 Chattanooga
 Cincinnati
@@ -103,7 +103,7 @@ Indiana State, Indiana St
 Iowa
 Iowa State
 James Madison,JMU
-Jackson State
+Jackson State,Jackson St
 Jacksonville State,Jacksonville St
 Kansas
 Kansas State
@@ -131,7 +131,7 @@ Miami-Florida,Miami (FL),Miami Florida
 Miami-Ohio,Miami (OH),Miami Ohio
 Michigan
 Michigan State
-Middle Tennessee,Mid Tennessee St,Middle Tennessee State
+Middle Tennessee,Mid Tennessee St,Middle Tennessee State,Mid Tennessee State
 Minnesota
 Minnesota St-Moorhead,Moorhead State
 Minnesota State,Mankato State
@@ -162,7 +162,7 @@ Nicholls State,Nicholls St
 Norfolk State
 North Alabama
 North Carolina,UNC
-North Carolina A&T,No Carolina A+T,N Carolina A&T,NC A&T
+North Carolina A&T,No Carolina A+T,N Carolina A&T,NC A&T,N. Carolina A & T
 North Carolina Central,No Carolina Central,N Carolina Cent,NC Central
 North Dakota
 North Dakota State,North Dakota St
@@ -214,7 +214,7 @@ Savannah State
 Southeastern Louisiana,S E Louisiana,SE Louisiana
 S E Missouri St,SE Missouri St,Southeast Missouri State
 S W Missouri St,Missouri State
-So Carolina State,S Carolina St,South Carolina State,SC State
+So Carolina State,S Carolina St,South Carolina State,SC State,So Carolina St
 Sonoma State
 South Alabama
 South Carolina
@@ -228,14 +228,14 @@ Southern Utah
 St. Cloud State
 St. Francis (PA),St Francis (PA)
 Stanford
-Stephen F. Austin,Stephen F Austin,SF Austin
+Stephen F. Austin,Stephen F Austin,SF Austin,Stephen F.Austin
 Stetson
 Stony Brook
 Syracuse
 TCU,Texas Christian
 Temple
-Tennessee
-Tennessee-Martin,UT Martin
+Tennessee,Tennessee U
+Tennessee-Martin,Tennessee Martin,UT Martin
 Tennessee St,Tennessee State,East Tenn St,East Tennessee St
 Tennessee Tech,Tenn Tech
 Texas
@@ -245,7 +245,7 @@ Texas A&M-Kingsville
 Texas Southern
 Texas State
 Texas Tech
-Texas-San Antonio,UTSA
+Texas-San Antonio,UTSA,Tex San Antonio
 Texas State,S W Texas State
 Toledo
 Towson
@@ -257,7 +257,7 @@ U-A-B,UAB,Alabama-Birmingham
 U-C-F,UCF,Central Florida
 U.C.L.A.,UCLA
 UC-Davis,UC Davis,California-Davis
-UL-Lafayette,LA-Lafayette,Louisiana-Lafayette
+UL-Lafayette,LA-Lafayette,Louisiana-Lafayette,UL - Lafayette
 UL-Monroe,UL Monroe,Louisiana-Monroe
 UNLV,Nevada-Las Vegas
 USC,Southern Cal,Southern California

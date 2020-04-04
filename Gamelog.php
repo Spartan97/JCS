@@ -45,7 +45,7 @@
 		$games = mysqli_query($con, "select away.name, home.name, game.*, away.id, home.id from Games as game inner join Teams as home on home.id = game.homeTeamID inner join Teams as away on away.id = game.awayTeamID where game.date > '" . $year . "-07-01'  and game.date < '" . ($year + 1) . "-07-01' order by game.date");
 		while($game = mysqli_fetch_array($games)) {
 			if($team != 0)
-				if($game[31] != $team && $game[30] != $team)
+				if($game[33] != $team && $game[32] != $team)
 					continue;
 			// skip if not the team we want
 
@@ -53,7 +53,10 @@
 			echo "<td>" . $game[3] . "</td>";
 
 			$td = "<td style='background-color:rgba(255,0,0,.25)'>";
-			echo $td . $game[0] . "</td>";
+			if($game[30] != 0)
+				echo $td . $game[0] . " (" . $game[30] . ")</td>";
+			else
+				echo $td . $game[0] . "</td>";
 			echo $td . $game[5] . "</td>";
 			echo $td . $game[6] . "</td>";
 			echo $td . $game[8] . "</td>";
@@ -67,7 +70,10 @@
 			echo $td . $game[15] . "</td>";
 
 			$td = "<td style='background-color:rgba(0,0,255,.25)'>";
-			echo $td . $game[1] . "</td>";
+			if($game[31] != 0)
+				echo $td . $game[1] . " (" . $game[31] . ")</td>";
+			else
+				echo $td . $game[1] . "</td>";
 			echo $td . $game[28] . "</td>";
 			echo $td . $game[17] . "</td>";
 			echo $td . $game[18] . "</td>";
@@ -144,7 +150,7 @@
 <div id="filters"><form method="POST">
 	<select id="yearselect" name="year">
 <?php
-		for($i = 2017; $i >= 1978; $i--) {
+		for($i = 2018; $i >= 1978; $i--) {
 			echo "<option value='" . $i . "'>" . $i . "</option>";
 		}
 ?>
@@ -163,7 +169,7 @@
 
 <div id="games">
 <?php
-	$myyear = 2017;
+	$myyear = 2018;
 	$myteam = 0;
 	if(isset($_POST['year']))
 		$myyear = $_POST['year'];

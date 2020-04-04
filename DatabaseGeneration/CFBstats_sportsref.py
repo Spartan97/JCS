@@ -1,9 +1,10 @@
-import urllib2 # static url reading
+import urllib.request # static url reading
 
 # xml parsing
 from lxml import etree
 from lxml import html
 import lxml.cssselect
+from http.cookiejar import CookieJar
 
 import MySQLdb # sql queries
 
@@ -24,14 +25,14 @@ for line in file:
 	cursor.execute("SELECT * from Teams where name in (" + names + ")")
 	team = cursor.fetchall()
 	if len(team) == 0:
-		print "Team not found: " + names
+		print("Team not found: " + names)
 		quit()
 	elif len(team) > 1:
-		print "Multiple teams found: " + names
+		print("Multiple teams found: " + names)
 		quit()
 	else:
 		for n in names.split(","):
-			teamAliases[n.strip("' ").strip('"')] = int(team[0][0])
+			teamAliases[n.strip("' ").strip('"').lower()] = int(team[0][0])
 
 # Log file for games that aren't handled properly
 logfile = open("/var/www/html/JCSrankings/DatabaseGeneration/missing_games.txt", "w+")
@@ -54,28 +55,28 @@ class Team:
         ints = -1
         fumbs = -1
 
-	firstDowns = -1
+        firstDowns = -1
 
-	pens = -1
-	penYds = -1
+        pens = -1
+        penYds = -1
 
-	# placeholders for future ideas
-	punts = -1
-	puntYds = -1
-	FGMade = -1
-	FGAtt = -1
+        # placeholders for future ideas
+        punts = -1
+        puntYds = -1
+        FGMade = -1
+        FGAtt = -1
 
         def printSelf(self):
-                print self.name, "(" + str(self.id) + ", " + str(self.site) + ")", self.score
-                print "\tRushing: " + str(self.rushAtt) + ", " + str(self.rushYds)
-                print "\tPassing: " + str(self.passComp) + "-" + str(self.passAtt) + ", " + str(self.passYds)
-                print "\tFumbles: " + str(self.fumbs) + ", Interceptions: " + str(self.ints)
+                print(self.name, "(" + str(self.id) + ", " + str(self.site) + ")", self.score)
+                print("\tRushing: " + str(self.rushAtt) + ", " + str(self.rushYds))
+                print("\tPassing: " + str(self.passComp) + "-" + str(self.passAtt) + ", " + str(self.passYds))
+                print("\tFumbles: " + str(self.fumbs) + ", Interceptions: " + str(self.ints))
 
 def printHtml(root, depth):
         for n in range(0, depth):
-                print " ",
-        print depth,
-        print root.tag, root.get("class"), root.text
+                print(" ", end='')
+        print(depth, end='')
+        print(root.tag, root.get("class"), root.text)
         for child in root:
                 printHtml(child, depth+1)
 
@@ -83,44 +84,45 @@ def insertGameRow(date, awayTeam, homeTeam, legacy = False):
         cursor.execute("SELECT * from Games where date='" + date + "' and awayTeamID=" + str(awayTeam.id) + " and homeTeamID=" + str(homeTeam.id))
         games = cursor.fetchall()
         if len(games) > 0:
-		print "Already handled " + awayTeam.name + "-" + homeTeam.name
+                print("Already handled " + awayTeam.name + "-" + homeTeam.name)
                 return # game has already been handled
 
-	print date
-	awayTeam.printSelf()
-	homeTeam.printSelf()
+        print(date)
+        awayTeam.printSelf()
+        homeTeam.printSelf()
 
         site = 0
         if awayTeam.site == "N":
                 site = 1
 
-	if legacy:
+        if legacy:
 #		print(\
-		cursor.execute(\
-		"INSERT into Games (date, awayTeamID, awayScore, homeTeamID, homeScore) values ('" + \
-		date + "', " + str(awayTeam.id) + ", " + str(awayTeam.score) + ", " + str(homeTeam.id) + \
-		", " + str(homeTeam.score) + ")")
-		return
+                cursor.execute(\
+                "INSERT into Games (date, awayTeamID, awayScore, homeTeamID, homeScore) values ('" + \
+                date + "', " + str(awayTeam.id) + ", " + str(awayTeam.score) + ", " + str(homeTeam.id) + \
+                ", " + str(homeTeam.score) + ")")
+                return
 
 #	print(\
-	cursor.execute(\
-	"INSERT into Games values (" + str(site) + ", '" + date + "', " + \
+        cursor.execute(\
+        "INSERT into Games values (" + str(site) + ", '" + date + "', " + \
         str(awayTeam.id) + ", " + str(awayTeam.score) + ", " + str(awayTeam.passYds) + ", " + str(awayTeam.passAtt) + ", " + \
         str(awayTeam.passComp) + ", " + str(awayTeam.rushYds) + ", " + str(awayTeam.rushAtt) + ", " + str(awayTeam.ints) + ", " + \
         str(awayTeam.fumbs) + ", " + str(awayTeam.firstDowns) + ", " + str(awayTeam.pens) + ", " + str(awayTeam.penYds) + ", " + \
 	str(homeTeam.id) + ", " + str(homeTeam.score) + ", " + str(homeTeam.passYds) + ", " + str(homeTeam.passAtt) + ", " + \
 	str(homeTeam.passComp) + ", " + str(homeTeam.rushYds) + ", " + str(homeTeam.rushAtt) + ", " + str(homeTeam.ints) + ", " + \
-	str(homeTeam.fumbs) + ", " + str(homeTeam.firstDowns) + ", " + str(homeTeam.pens) + ", " + str(homeTeam.penYds) + ", NULL, NULL)")
+	str(homeTeam.fumbs) + ", " + str(homeTeam.firstDowns) + ", " + str(homeTeam.pens) + ", " + str(homeTeam.penYds) + ", NULL, NULL, 0, 0)")
 
 def getTeamIdFromName(name):
+	name = name.lower()
 	if name in teamAliases:
 		return teamAliases[name]
 	else:
-		print "ID for " + name + " not found."
+		print("ID for " + name + " not found.")
 		return -1
 
 def parseBoxScore(link):
-	response = urllib2.urlopen(link)
+	response = urllib.request.urlopen(link)
 	page = response.read()
 	boxscore = html.document_fromstring(page)
 	response.close()
@@ -151,7 +153,6 @@ def parseBoxScore(link):
 		allTeamStats = boxscore.cssselect("div#all_team_stats")[0]
 		statsString = lxml.etree.tostring(allTeamStats).replace("<!--", " ").replace("-->", " ")
 		if "<tbody>" not in statsString:
-		
 			statsString = statsString.split("</thead>")[0] + "</thead><tbody>" + statsString.split("</thead>")[1]
 		statsHtml = html.document_fromstring(statsString)
 		stats = statsHtml.cssselect("table#team_stats tbody")[0]
@@ -200,14 +201,14 @@ def parseBoxScore(link):
 		homeTeam.penYds = stats[6][2].text_content().split("-")[1]
 	except:
 		logfile.write(link + "\n")
-		print "Stats for " + awayTeam.name + " " + homeTeam.name + " not available." 
+		print("Stats for " + awayTeam.name + " " + homeTeam.name + " not available.")
 
 	return awayTeam, homeTeam, isNeutral
 
 scoreboardBase = "http://www.sports-reference.com/cfb/boxscores/index.cgi?"
 def getScoresForDate(month, day, year, full_week = True, legacy = False):
 	scoreboardURL = scoreboardBase + "month=" + str(month) + "&day=" + str(day) + "&year=" + str(year)
-	response = urllib2.urlopen(scoreboardURL)
+	response = urllib.request.urlopen(scoreboardURL)
 	page = response.read()
 	root = html.document_fromstring(page)
 	response.close()
@@ -215,14 +216,14 @@ def getScoresForDate(month, day, year, full_week = True, legacy = False):
 		br.tail = "\n" + br.tail if br.tail else "\n"
 
 	if len(root.cssselect("div.game_summaries")) == 0:
-		print "No game summaries found for week of " + str(month) + "-" + str(day) + "-" + str(year)
+		print("No game summaries found for week of " + str(month) + "-" + str(day) + "-" + str(year))
 		return
 
 	main_scores = root.cssselect("div.game_summaries")[0]
 
 	# skip games that weren't actually played on this day
 	if "Other Games" in main_scores.cssselect("h2")[0].text_content():
-		print "No games played on " + str(month) + "-" + str(day) + "-" + str(year)
+		print("No games played on " + str(month) + "-" + str(day) + "-" + str(year))
 		return
 
 	main_scores = main_scores.cssselect("div.game_summary") # array of games
@@ -239,7 +240,7 @@ def getScoresForDate(month, day, year, full_week = True, legacy = False):
 		try:
 			if not legacy and len(score[firstTeam][2]) > 0:
 				link = "http://www.sports-reference.com" + score[firstTeam][2][0].get("href")
-				print "\nParsing " + link
+				print("\nParsing " + link)
 				awayTeam, homeTeam, isNeutral = parseBoxScore(link)
 			else:
 				awayTeam = Team()
@@ -250,19 +251,19 @@ def getScoresForDate(month, day, year, full_week = True, legacy = False):
 				homeTeam.name = score[firstTeam+1][0].cssselect("a")[0].text_content()
 				homeTeam.id = getTeamIdFromName(homeTeam.name)
 
-				print "Skipping boxscore portion for legacy game on " + date + " for " + awayTeam.name + " vs " + homeTeam.name
+				print("Skipping boxscore portion for legacy game on " + date + " for " + awayTeam.name + " vs " + homeTeam.name)
 
 			awayTeam.score = score[firstTeam][1].text_content()
 			homeTeam.score = score[firstTeam+1][1].text_content()
 			tempLegacy = legacy
 			if awayTeam.score == '' or homeTeam.score == "":
-				print "No score availible for " + awayTeam.name + " at " + homeTeam.name + ". Was the game not played?"
+				print("No score availible for " + awayTeam.name + " at " + homeTeam.name + ". Was the game not played?")
 			else:
 				if awayTeam.rushAtt == -1 and homeTeam.rushAtt == -1:
 					tempLegacy = True # legacy if we can't find the boxscore
 				insertGameRow(date, awayTeam, homeTeam, tempLegacy)
 		except Exception as e:
-			print "Failed to get boxscore:", e
+			print("Failed to get boxscore:", e)
 
 def handleYear(year):
 	# start in february to ignore previous season's bowls
@@ -276,55 +277,72 @@ def handleYear(year):
 			max_date = 30
 		for date in range(1, max_date+1):
 			getScoresForDate(month, date, year)
-			db.commit()			
+			db.commit()
 
 	for date in range(1, 32): # jan of next year (bowls)
 		getScoresForDate(1, date, year+1)
 		db.commit()
 
-def getLines(month, day, year):
+def getLinesForYesterday(month, day, year):
 	date = str(year) + str(month).zfill(2) + str(day).zfill(2)
-	link = "http://www.scoresandodds.com/index.html?sort=rot"
-#	link = "http://www.scoresandodds.com/yesterday.html?sort=rot"
+#	link = "http://www.scoresandodds.com/index.html?sort=rot"
+	link = "http://www.scoresandodds.com/yesterday.html?sort=rot"
 
-	response = urllib2.urlopen(link)
+	cj = CookieJar()
+	opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(cj))
+	response = opener.open(link)
 	page = response.read()
 	root = html.document_fromstring(page)
 	response.close()
 
-	lines = root.findall(".//div[@id='fbc']...")[0]
+	lines = root.findall(".//div[@id='fbc']...")
+	if len(lines) == 0:
+		print("No lines found for " + str(month) + "-" + str(day) + "-" + str(year))
+		return
+	lines = lines[0]
 	teams = lines.cssselect("tr.team")
 	for n in range(0, len(teams), 2):
 		away = teams[n]
 		home = teams[n+1]
 
-		awayteam = " ".join(away.cssselect("td.name")[0].text_content().split(" ")[1:]) 
+		awayteam = getTeamIdFromName(" ".join(away.cssselect("td.name")[0].text_content().split(" ")[1:]))
 		awayline = away.cssselect("td.currentline")[0].text_content().split(" ")[0]
-		hometeam = " ".join(home.cssselect("td.name")[0].text_content().split(" ")[1:])
+		awaymoney = away.cssselect("td.line")[2].text_content()
+		hometeam = getTeamIdFromName(" ".join(home.cssselect("td.name")[0].text_content().split(" ")[1:]))
 		homeline = home.cssselect("td.currentline")[0].text_content().split(" ")[0]
-		
+		homemoney = home.cssselect("td.line")[2].text_content()
+
 		if "-" in awayline:
 			homeline = awayline[1:]
 		else:
 			awayline = homeline[1:]
 
-		print awayteam, awayline
-		print hometeam, homeline
-		print ""
+		if awaymoney == "":
+			awaymoney = "0"
+		if homemoney == "":
+			homemoney = "0"
+
+		cursor.execute("UPDATE Games set line=" + homeline + ", moneyLineAway=" + awaymoney + ", moneyLineHome=" + homemoney + 
+			       " WHERE awayTeamID=" + str(awayteam) + " and homeTeamID=" + str(hometeam) + " and date=" + date)
 
 # MAIN METHOD
 try:
-	print "Getting scores..."
+	print("Getting scores...")
 
 	if len(sys.argv) == 2 and sys.argv[1] == "daily":
 		yesterday = datetime.datetime.now() - datetime.timedelta(days=1)
-		getScoresForDate(yesterday.month, yesterday.day, yesterday.year)	
-#		getLines(yesterday.month, yesterday.day, yesterday.year)
+		getScoresForDate(yesterday.month, yesterday.day, yesterday.year)
+		db.commit()
+#		getLinesForYesterday(yesterday.month, yesterday.day, yesterday.year)
 	else:
-		print "Invalid arguments. Executing default code."
+		print("Invalid arguments. Executing default code.")
 
-		getLines(8, 25, 2018) # test this function
-
+		getScoresForDate( 9, 2, 2018)
+		getScoresForDate( 9, 3, 2018)
+		getScoresForDate( 9, 4, 2018)
+		getScoresForDate( 9, 5, 2018)
+		getScoresForDate( 9, 6, 2018)
+#		getLinesForYesterday(9, 1, 2018)
 
 #		getScoresForDate( 8, 28, 2015) # should be no games this week
 #		getScoresForDate( 9,  1, 2015) # should be no games this day
@@ -338,8 +356,10 @@ try:
 #			cursor.execute("DELETE from Games WHERE date='%s-%s-%s'", [2018, 1, n])
 #			getScoresForDate(1, n, 2018)
 
-except MySQLdb.Error, e:
-	print str(e)
+#		getLinesForYesterday(8, 25, 2018) # test this function
+
+except MySQLdb.Error as e:
+	print(str(e))
 
 db.commit()
 logfile.close()
