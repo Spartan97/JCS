@@ -1,6 +1,6 @@
-import MySQLdb # sql queries
+import pymysql # sql queries
 
-db = MySQLdb.connect(host="localhost", user="root", db="JCS")
+db = pymysql.connect(host="localhost", user="root", db="JCS")
 cursor = db.cursor()
 
 class Team:

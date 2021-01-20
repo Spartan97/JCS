@@ -1,7 +1,7 @@
-import MySQLdb
+import pymysql
 
 # connects to my JCS DB with my super secure username and password
-db = MySQLdb.connect(host="localhost", user="root", passwd="12345", db="JCS")
+db = pymysql.connect(host="localhost", user="root", passwd="12345", db="JCS")
 cursor = db.cursor()
 
 cursor.execute("Select * from Games")

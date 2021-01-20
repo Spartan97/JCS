@@ -6,7 +6,7 @@ from lxml import html
 import lxml.cssselect
 from http.cookiejar import CookieJar
 
-import MySQLdb # sql queries
+import pymysql # sql queries
 
 # system libs
 import datetime
@@ -14,7 +14,7 @@ import sys
 import time
 
 # connects to my JCS DB with my super secure username and password
-db = MySQLdb.connect(host="localhost", user="jcsuser", passwd="jcspassword", db="JCS")
+db = pymysql.connect(host="localhost", user="jcsuser", passwd="jcspassword", db="JCS")
 cursor = db.cursor()
 
 # Loads team aliases from CSV file - allows us to recognize team names that are stylized differently

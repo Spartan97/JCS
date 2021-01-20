@@ -1,9 +1,9 @@
 import urllib2 # url reading
 from lxml import etree
 from lxml import html # xml parsing
-import MySQLdb # sql queries
+import pymysql # sql queries
 
-db = MySQLdb.connect(host="localhost", user="root", passwd="12345", db="JCS")
+db = pymysql.connect(host="localhost", user="root", passwd="12345", db="JCS")
 cursor = db.cursor()
 
 class Team:
